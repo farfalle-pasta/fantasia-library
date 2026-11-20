@@ -1,0 +1,18 @@
+{
+  "id": "./",
+  "name": "Fantasia Library",
+  "short_name": "Fantasia Library",
+  "description": "小さな世界と創造の記録 ― AIと作ったブラウザゲームの保管場所",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#2b2140",
+  "theme_color": "#2b2140",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

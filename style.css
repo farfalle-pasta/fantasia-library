@@ -1,0 +1,222 @@
+/* =====================================================================
+   Fantasia Library ― 見た目(夜の図書館:本棚・羊皮紙・金のランプ)
+   色はいちばん上の :root にまとめています。ここを変えると全体の雰囲気が変わります。
+   ===================================================================== */
+:root {
+  --ink: #3f3350;          /* ふつうの文字 */
+  --muted: #8a7d9c;        /* うすい文字 */
+  --paper: #f6edda;        /* 羊皮紙(ページの背景) */
+  --paper-light: #fffaf0;  /* カードの紙 */
+  --night: #2b2140;        /* 夜の色(ヘッダー) */
+  --night-deep: #1c1530;
+  --wood: #5a3a2a;         /* 本棚の木 */
+  --leather: #7b2d43;      /* 革表紙のえんじ */
+  --gold: #d3a24a;         /* 金箔 */
+  --gold-soft: #f0dba5;
+  --line: #e2d2ad;
+  --shadow: 0 8px 20px rgba(60, 40, 20, .22);
+  --serif: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", "Noto Serif CJK JP", "Times New Roman", serif;
+  --sans: "Hiragino Maru Gothic ProN", "Rounded Mplus 1c", "Yu Gothic UI", "Meiryo", "Noto Sans JP", "Noto Sans CJK JP", sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--sans);
+  color: var(--ink);
+  line-height: 1.8;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,.5), transparent 40%),
+    repeating-linear-gradient(0deg, rgba(120,90,40,.025) 0 2px, transparent 2px 5px),
+    var(--paper);
+}
+a { color: inherit; }
+h1, h2, h3, p, ol { margin: 0; }
+
+/* ---------- 入口(夜の図書館) ---------- */
+.hero {
+  position: relative;
+  color: #fff;
+  text-align: center;
+  overflow: hidden;
+  padding: calc(46px + env(safe-area-inset-top)) 20px 150px;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 0%, rgba(255, 214, 120, .28), transparent 70%),
+    linear-gradient(180deg, var(--night-deep) 0%, var(--night) 70%, #3a2a4f 100%);
+}
+.stars {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 22%, rgba(255,240,200,.9) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 84% 16%, rgba(255,240,200,.9) 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 42%, rgba(255,240,200,.7) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 28% 48%, rgba(255,240,200,.7) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 92% 55%, rgba(255,240,200,.6) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 5% 60%, rgba(255,240,200,.6) 0 1.5px, transparent 2.5px);
+}
+.hero-inner { position: relative; max-width: 720px; margin: 0 auto; }
+.eyebrow { font-size: 11px; letter-spacing: .26em; color: var(--gold-soft); margin-bottom: 14px; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(36px, 10.5vw, 62px);
+  letter-spacing: .06em;
+  line-height: 1.15;
+  color: #fff2cf;
+  text-shadow: 0 0 22px rgba(255, 205, 110, .45), 0 2px 0 rgba(0,0,0,.35);
+}
+.subtitle {
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-size: 13px;
+  letter-spacing: .3em;
+  color: var(--gold-soft);
+}
+.subtitle::before, .subtitle::after { content: "—"; margin: 0 .7em; opacity: .6; }
+.lead { text-wrap: balance; margin-top: 22px; font-size: 14px; line-height: 1.95; color: #efe6ff; }
+.pc { display: none; }
+@media (min-width: 640px) { .pc { display: inline; } }
+
+.shelf { position: absolute; left: 0; bottom: 0; width: 100%; height: 80px; display: block; }
+/* 本棚の上のほこりよけ影 */
+.hero::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 80px; height: 70px;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,.18));
+  pointer-events: none;
+}
+
+/* ---------- 蔵書 ---------- */
+main { max-width: 960px; margin: 0 auto; padding: 18px 18px 44px; }
+.room { margin-top: 34px; }
+.room-head { margin-bottom: 18px; text-align: center; }
+.room h2 { font-family: var(--serif); font-size: 22px; letter-spacing: .12em; color: var(--leather); }
+.ornament { color: var(--gold); margin: 0 .35em; font-size: .85em; }
+.room-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+.gallery {
+  display: grid;
+  gap: 28px 22px;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+}
+.loading { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 30px 0; }
+
+/* 一冊(革の背表紙 + 表紙の絵 + 図書カード風の札) */
+.exhibit {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  background: linear-gradient(135deg, #8d3350, var(--leather) 60%, #5e2033);
+  border-radius: 4px 10px 10px 4px;
+  padding: 14px 14px 0 30px;       /* 左は背表紙の分だけ広く */
+  box-shadow: var(--shadow), inset 0 0 0 2px rgba(240, 219, 165, .45);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+/* 背表紙(金の帯) */
+.exhibit::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 18px;
+  border-radius: 4px 0 0 4px;
+  background:
+    linear-gradient(180deg, transparent 0 14%, var(--gold) 14% 15.5%, transparent 15.5% 82%, var(--gold) 82% 83.5%, transparent 83.5%),
+    linear-gradient(90deg, rgba(0,0,0,.35), rgba(255,255,255,.08) 60%, rgba(0,0,0,.2));
+}
+.exhibit:hover, .exhibit:focus-visible { transform: translateY(-4px) rotate(-.4deg); box-shadow: 0 14px 28px rgba(60, 40, 20, .35), inset 0 0 0 2px rgba(240, 219, 165, .6); }
+.exhibit:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.exhibit .art {
+  aspect-ratio: 8 / 5;
+  background: linear-gradient(135deg, #ffecf6, #d6c8fa);
+  border: 2px solid var(--gold);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.exhibit .art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.plate {
+  margin: 14px -14px 0 -16px;
+  padding: 12px 16px 14px;
+  background:
+    linear-gradient(180deg, transparent 0 31px, rgba(150, 110, 60, .18) 31px 32px, transparent 32px) 0 0 / 100% 26px,
+    var(--paper-light);
+  border-top: 3px double var(--gold);
+  border-radius: 0 0 8px 3px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.plate .no { font-size: 11px; letter-spacing: .22em; color: #b2762f; font-family: var(--serif); }
+.plate h3 { font-family: var(--serif); font-size: 20px; color: #3a2540; line-height: 1.4; margin-top: 2px; }
+.plate .desc { font-size: 13px; color: #5a4a52; margin-top: 6px; line-height: 1.7; flex: 1; }
+.plate .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.tag { font-size: 11px; padding: 1px 9px; border-radius: 99px; background: #fff; border: 1px solid var(--line); color: #8a5a35; }
+.plate .play {
+  margin-top: 12px; align-self: flex-start;
+  background: var(--leather); color: #fff2cf;
+  font-weight: 700; font-size: 14px; padding: 6px 18px; border-radius: 99px;
+  box-shadow: inset 0 0 0 1px rgba(240, 219, 165, .6);
+}
+.plate .date { font-size: 11px; color: #a8936a; margin-top: 8px; }
+
+/* 準備中の一冊(空いている棚) */
+.exhibit.soon {
+  cursor: default;
+  background: repeating-linear-gradient(45deg, rgba(255,250,240,.7), rgba(255,250,240,.7) 10px, rgba(240,226,190,.7) 10px, rgba(240,226,190,.7) 20px);
+  border: 2px dashed var(--gold);
+  border-radius: 8px;
+  box-shadow: none;
+  align-items: center; justify-content: center; text-align: center;
+  padding: 30px 16px; min-height: 220px; color: var(--muted);
+}
+.exhibit.soon::before { display: none; }
+.exhibit.soon:hover { transform: none; box-shadow: none; }
+.exhibit.soon .big { font-size: 34px; }
+.exhibit.soon p { font-family: var(--serif); margin-top: 6px; letter-spacing: .08em; }
+
+/* ---------- カード(利用案内など) ---------- */
+.card {
+  background: var(--paper-light);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--leather);
+  border-radius: 4px 4px 10px 10px;
+  padding: 20px 18px 22px;
+  box-shadow: var(--shadow);
+}
+.about .card p { font-size: 14.5px; color: #53455e; }
+.about .card p + p { margin-top: 10px; }
+.about strong { color: var(--leather); }
+
+.steps-note { background: #fff1c9; border: 1px solid var(--gold-soft); border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 16px; }
+.steps-note em { font-style: normal; background: linear-gradient(transparent 60%, #ffd778 60%); }
+.tabs { display: flex; gap: 6px; border-bottom: 2px solid var(--line); flex-wrap: wrap; }
+.tabs button {
+  font: inherit; font-size: 14px; font-weight: 700;
+  border: 0; background: none; color: var(--muted);
+  padding: 8px 14px; cursor: pointer;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+}
+.tabs button[aria-selected="true"] { color: var(--leather); border-bottom-color: var(--leather); }
+.panel { padding: 16px 4px 4px; }
+.panel ol { padding-left: 1.4em; }
+.panel li { margin: 6px 0; font-size: 15px; }
+.kbd { display: inline-block; border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; background: #fff; font-weight: 700; }
+.warn, .note { margin-top: 12px; font-size: 13px; border-radius: 8px; padding: 10px 14px; }
+.warn { background: #fff0ec; border: 1px solid #f2c3b8; }
+.note { background: #eef7ee; border: 1px solid #c4e0c4; }
+.install-box { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line); text-align: center; font-size: 14px; }
+.btn {
+  margin-top: 8px; font: inherit; font-weight: 700; color: #fff2cf; cursor: pointer;
+  background: var(--leather); border: 0; border-radius: 99px; padding: 10px 24px;
+  box-shadow: inset 0 0 0 1px rgba(240, 219, 165, .6);
+}
+.btn:active { transform: translateY(1px); }
+
+footer {
+  text-align: center; padding: 28px 16px calc(32px + env(safe-area-inset-bottom));
+  color: var(--gold-soft); font-family: var(--serif); letter-spacing: .12em;
+  background: linear-gradient(180deg, var(--wood), #3a261c);
+  border-top: 3px solid var(--gold);
+}
+footer .small { font-size: 11px; letter-spacing: .1em; margin-top: 4px; font-family: var(--sans); opacity: .85; }
+footer .tiny { font-size: 10px; letter-spacing: .04em; margin-top: 10px; font-family: var(--sans); opacity: .6; line-height: 1.6; }
+
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

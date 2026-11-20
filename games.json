@@ -1,0 +1,18 @@
+{
+  "games": [
+    {
+      "slug": "dream-witch",
+      "title": "ドリームウィッチ",
+      "description": "魔女を選んでステージで戦い、そざいを集めてクラフトするメルヘンなスマホ向けゲーム。",
+      "path": "games/dream-witch/",
+      "thumbnail": "games/dream-witch/thumb.jpg",
+      "tags": [
+        "育成",
+        "クラフト",
+        "スマホ縦向き"
+      ],
+      "added": "2026-11-21",
+      "updated": "2026-11-21"
+    }
+  ]
+}
