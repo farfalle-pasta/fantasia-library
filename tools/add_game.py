@@ -73,7 +73,25 @@ def make_icons(src, dest):
     return True
 
 
-def inject_head(html, title, theme):
+LOCK_BLOCK = """<style>
+/* 画面固定(ホーム画面アプリで、ヘッダー・下のタブごと画面がずるずる動くのを防ぐ) */
+html, body { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; overflow: hidden; overscroll-behavior: none; }
+</style>
+<script>
+/* スクロールできる場所(中身が画面より長い部分)以外では、指でなぞっても画面全体が動かないようにする */
+document.addEventListener('touchmove', function (e) {
+  if (e.touches && e.touches.length > 1) return;
+  for (var n = e.target; n && n.nodeType === 1 && n !== document.documentElement; n = n.parentElement) {
+    var oy = getComputedStyle(n).overflowY;
+    if ((oy === 'auto' || oy === 'scroll') && n.scrollHeight > n.clientHeight + 1) return;
+  }
+  if (e.cancelable) e.preventDefault();
+}, { passive: false });
+</script>
+"""
+
+
+def inject_head(html, title, theme, lock_scroll=False):
     block = f"""{MARK_BEGIN}
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
@@ -89,7 +107,7 @@ if ('serviceWorker' in navigator) {{
   }});
 }}
 </script>
-{MARK_END}
+{LOCK_BLOCK if lock_scroll else ''}{MARK_END}
 """
     # 前に入れた分があれば取り除いてから入れ直す(何度実行しても同じ結果になる)
     html = re.sub(re.escape(MARK_BEGIN) + r".*?" + re.escape(MARK_END) + r"\s*", "", html, flags=re.S)
@@ -116,6 +134,10 @@ def main():
     ap.add_argument("--tags", default="", help="タグ(カンマ区切り)")
     ap.add_argument("--orientation", default="portrait", choices=["portrait", "landscape", "any"],
                     help="ホーム画面から開いたときの向き(既定: portrait)")
+    ap.add_argument("--lock-scroll", dest="lock_scroll", action="store_true", default=None,
+                    help="ヘッダー/下タブが指でずれるゲーム用:ホーム画面アプリで画面全体を固定する")
+    ap.add_argument("--no-lock-scroll", dest="lock_scroll", action="store_false",
+                    help="画面固定をやめる")
     ap.add_argument("--background", default=None, help="起動時の背景色(既定: ゲームのtheme-color)")
     a = ap.parse_args()
 
@@ -130,7 +152,12 @@ def main():
 
     html = src.read_text(encoding="utf-8")
     theme = detect_theme(html)
-    html = inject_head(html, a.title, theme)
+    # 画面固定の設定は games.json に覚えておき、指定が無ければ前回と同じにする
+    cat_path = ROOT / "games.json"
+    catalog = json.loads(cat_path.read_text(encoding="utf-8")) if cat_path.exists() else {"games": []}
+    old = next((g for g in catalog.get("games", []) if g.get("slug") == a.slug), None)
+    lock = a.lock_scroll if a.lock_scroll is not None else bool((old or {}).get("lockScroll", False))
+    html = inject_head(html, a.title, theme, lock)
     (dest / "index.html").write_text(html, encoding="utf-8")
     version = hashlib.sha1(html.encode("utf-8")).hexdigest()[:10]
 
@@ -224,11 +251,8 @@ self.addEventListener('fetch', (e) => {{
     (dest / "sw.js").write_text(sw, encoding="utf-8")
 
     # --- games.json ---
-    cat_path = ROOT / "games.json"
-    catalog = json.loads(cat_path.read_text(encoding="utf-8")) if cat_path.exists() else {"games": []}
     games = catalog.setdefault("games", [])
     today = datetime.date.today().isoformat()
-    old = next((g for g in games if g.get("slug") == a.slug), None)
     entry = {
         "slug": a.slug,
         "title": a.title,
@@ -239,6 +263,8 @@ self.addEventListener('fetch', (e) => {{
         "added": (old or {}).get("added", today),
         "updated": today,
     }
+    if lock:
+        entry["lockScroll"] = True
     if old:
         games[games.index(old)] = entry
     else:
