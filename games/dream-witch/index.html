@@ -17,6 +17,21 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+<style>
+/* 画面固定(ホーム画面アプリで、ヘッダー・下のタブごと画面がずるずる動くのを防ぐ) */
+html, body { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; overflow: hidden; overscroll-behavior: none; }
+</style>
+<script>
+/* スクロールできる場所(中身が画面より長い部分)以外では、指でなぞっても画面全体が動かないようにする */
+document.addEventListener('touchmove', function (e) {
+  if (e.touches && e.touches.length > 1) return;
+  for (var n = e.target; n && n.nodeType === 1 && n !== document.documentElement; n = n.parentElement) {
+    var oy = getComputedStyle(n).overflowY;
+    if ((oy === 'auto' || oy === 'scroll') && n.scrollHeight > n.clientHeight + 1) return;
+  }
+  if (e.cancelable) e.preventDefault();
+}, { passive: false });
+</script>
 <!-- PWA:END -->
 
   <!-- スマホ向け: 画面の幅にぴったり合わせ、拡大縮小を止める -->

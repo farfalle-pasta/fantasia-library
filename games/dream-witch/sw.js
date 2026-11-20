@@ -1,7 +1,7 @@
 // 自動生成: add_game.py ― ドリームウィッチ
 // ゲームの中身が変わると VERSION も変わり、次回起動時に新しい版へ入れ替わります。
 const PREFIX = 'game-dream-witch-';
-const CACHE = PREFIX + 'edb6b0c08a';
+const CACHE = PREFIX + '7478fe5f41';
 const FILES = ['./', './index.html', './manifest.webmanifest',
                './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
