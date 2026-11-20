@@ -31,6 +31,38 @@ document.addEventListener('touchmove', function (e) {
   }
   if (e.cancelable) e.preventDefault();
 }, { passive: false });
+
+/* Androidのホーム画面アプリでは 100vh/100dvh が実際に見える高さより大きく、
+   下のタブがナビゲーションバー(戻る・ホームのボタン)の下に隠れることがある。
+   そこで「実際に見えている高さ」を測って、画面いっぱいの部品をその高さに合わせる。 */
+(function () {
+  function visibleHeight() {
+    var vv = window.visualViewport;
+    return Math.round(vv && vv.height ? vv.height : window.innerHeight);
+  }
+  function fit() {
+    if (!document.body) return;
+    var h = visibleHeight();
+    if (!h) return;
+    document.body.style.setProperty('height', h + 'px', 'important');
+    var kids = document.body.children;
+    for (var i = 0; i < kids.length; i++) {
+      var el = kids[i];
+      if (!/^(DIV|MAIN|SECTION|ARTICLE)$/.test(el.tagName)) continue;
+      var pos = getComputedStyle(el).position;
+      if (pos === 'fixed' || pos === 'absolute') continue;
+      if (el.getAttribute('data-fit') === '1' || el.offsetHeight > h + 1) {
+        el.setAttribute('data-fit', '1');
+        el.style.setProperty('height', h + 'px', 'important');
+      }
+    }
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', function () { setTimeout(fit, 200); });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', fit);
+  document.addEventListener('DOMContentLoaded', fit);
+  window.addEventListener('load', fit);
+})();
 </script>
 <!-- PWA:END -->
 
