@@ -1,0 +1,65 @@
+name: Import website ZIP
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "upload/*.zip"
+
+permissions:
+  contents: write
+
+jobs:
+  extract-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract uploaded ZIP
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          import shutil
+
+          upload_dir = Path("upload")
+          archives = sorted(upload_dir.glob("*.zip"))
+          if len(archives) != 1:
+              raise SystemExit(f"Expected exactly one ZIP in upload/, found {len(archives)}")
+
+          archive = archives[0]
+          destination = Path(".")
+          with ZipFile(archive) as z:
+              for info in z.infolist():
+                  name = info.filename.replace("\\", "/")
+                  path = Path(name)
+                  if path.is_absolute() or ".." in path.parts:
+                      raise SystemExit(f"Unsafe path in ZIP: {info.filename}")
+                  if not name or name.startswith("/"):
+                      raise SystemExit(f"Invalid path in ZIP: {info.filename}")
+              z.extractall(destination)
+
+          archive.unlink()
+          try:
+              (upload_dir / "README.md").unlink()
+              upload_dir.rmdir()
+          except OSError:
+              pass
+          PY
+
+      - name: Commit extracted website files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "Import website files from ZIP"
+          git push
